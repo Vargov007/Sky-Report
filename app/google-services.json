@@ -1,0 +1,106 @@
+{
+  "project_info": {
+    "project_number": "397243683558",
+    "firebase_url": "https://database-lession-default-rtdb.firebaseio.com",
+    "project_id": "database-lession",
+    "storage_bucket": "database-lession.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397243683558:android:1efaf53a2f2873b8f9e127",
+        "android_client_info": {
+          "package_name": "com.example.signin"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGEmS3l-83f_rYzYgUwIArI2mqfGbXFyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397243683558:android:a9a721917533ef49f9e127",
+        "android_client_info": {
+          "package_name": "com.example.skyreport"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGEmS3l-83f_rYzYgUwIArI2mqfGbXFyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397243683558:android:6fa1da4804a628a9f9e127",
+        "android_client_info": {
+          "package_name": "com.example.tajanews"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397243683558-eo7h6cu5nld69rsiado5jdiis6o93gu8.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.tajanews",
+            "certificate_hash": "7c08ab6e04059a3a478bc0c54578add6e083b270"
+          }
+        },
+        {
+          "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGEmS3l-83f_rYzYgUwIArI2mqfGbXFyk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397243683558-lhs5nurti5cjtrn7e41qv97kd3o2vj7o.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
