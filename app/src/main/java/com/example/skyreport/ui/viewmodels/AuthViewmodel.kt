@@ -32,7 +32,17 @@ class AuthViewmodel(
                 _uiState.value = AuthUiState.Error(e.message.toString())
             }
             }
+    }
 
+    fun signout(){
+        viewModelScope.launch {
+            try {
+                authRepo.signOut()
+                _uiState.value = AuthUiState.Success(null)
+            }catch (e: Exception){
+                _uiState.value = AuthUiState.Error(e.message ?: "Sign Out Failed")
+            }
 
+        }
     }
 }
