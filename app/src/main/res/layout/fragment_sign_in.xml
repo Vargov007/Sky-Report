@@ -10,14 +10,16 @@
 
     <ImageView
         android:id="@+id/imageView"
-        android:layout_width="513dp"
-        android:layout_height="802dp"
+        android:layout_width="788dp"
+        android:layout_height="906dp"
         android:src="@drawable/rainfall"
+        android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
+        app:layout_constraintHorizontal_bias="0.264"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.661" />
 
     <TextView
         android:id="@+id/textView"
@@ -53,7 +55,7 @@
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="300dp"
         android:layout_height="70dp"
-        android:layout_marginBottom="200dp"
+        android:layout_marginBottom="236dp"
         android:backgroundTint="@color/translucent"
         android:gravity="center"
         android:text="Sign in with Google"
