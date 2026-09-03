@@ -32,6 +32,11 @@ android {
             "WEB_CLIENT_ID",
             "\"${localProperties.getProperty("WEB_CLIENT_ID") ?: ""}\""
         )
+        buildConfigField(
+            "String",
+            "API_KEY",
+            "\"${localProperties.getProperty("API_KEY")?: ""}\""
+        )
     }
 
     buildFeatures {
@@ -72,4 +77,20 @@ dependencies {
 
     implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.analytics)
+
+    // Retrofit for network calls
+    implementation(libs.retrofit)
+    implementation(libs.converter.gson)
+
+    // Coroutines for asynchronous operations
+    implementation(libs.kotlinx.coroutines.android)
+    implementation (libs.kotlinx.coroutines.play.services)
+
+
+// Lifecycle components for ViewModel
+    implementation(libs.androidx.lifecycle.viewmodel.ktx)
+    implementation(libs.androidx.lifecycle.livedata.ktx)
+
+    implementation(libs.play.services.location)
+
 }

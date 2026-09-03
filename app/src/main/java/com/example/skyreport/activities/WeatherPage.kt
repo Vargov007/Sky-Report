@@ -4,18 +4,31 @@ import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
 import android.os.Bundle
+import android.view.View
 import android.widget.TextView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.transition.TransitionManager
 import com.example.skyreport.R
+import com.example.skyreport.databinding.ActivityWeatherPageBinding
 
 class WeatherPage : BaseActivity() {
+
+    private lateinit var binding: ActivityWeatherPageBinding
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        setContentView(R.layout.activity_weather_page)
+        binding = ActivityWeatherPageBinding.inflate(layoutInflater)
+        setContentView(binding.root)
+
+//        binding.locationBtn.setOnClickListener {
+//            observeSearch()
+//        }
+//        binding.clearSearchBtn.setOnClickListener {
+//            observeClear()
+//        }
 
         textBgColor()
     }
@@ -46,6 +59,21 @@ class WeatherPage : BaseActivity() {
 
 
 
+//    fun observeClear() {
+//        TransitionManager.beginDelayedTransition(binding.headerContainer)
+//        binding.searchText.text.clear()
+//        binding.locationBtn.visibility = View.VISIBLE
+//        binding.searchBar.visibility = View.GONE
+//    }
+
+
+//    fun observeSearch() {
+//        TransitionManager.beginDelayedTransition((binding.headerContainer))
+//        binding.locationBtn.visibility = View.GONE
+//        binding.searchBar.visibility = View.VISIBLE
+//        binding.searchText.requestFocus()
+//
+//    }
 
 
     private fun textBgColor() {
