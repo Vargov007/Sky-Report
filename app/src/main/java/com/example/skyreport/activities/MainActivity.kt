@@ -27,18 +27,14 @@ class MainActivity : BaseActivity() {
 
         if (Firebase.auth.currentUser != null){
             setupWeatherUi()
-
-
         }
-
-
     }
 
 
     private fun setupWeatherUi() {
-
-        binding?.navHostFragment?.isVisible = false
-        startActivity(Intent(this, WeatherPage::class.java))
+        val intent = Intent(this, WeatherPage::class.java)
+        intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        startActivity(intent)
         finish()
 
     }

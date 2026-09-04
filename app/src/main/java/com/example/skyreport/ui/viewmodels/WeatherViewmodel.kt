@@ -12,29 +12,26 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.stateIn
 
-class WeatherViewmodel(private val repository: WeatherRepo): ViewModel()  {
-
-
-
+class WeatherViewmodel(
+    private val repository: WeatherRepo,
+) : ViewModel() {
     private val _cityname = MutableStateFlow("Kamakhyaguri")
-    val cityName : StateFlow<String> = _cityname
+    val cityName: StateFlow<String> = _cityname
 
     // Automatically reacts to cityName changes and fetches the weather data
     @OptIn(ExperimentalCoroutinesApi::class)
-    val weatherState : StateFlow<Result<WeatherResponce>> = _cityname
-        .flatMapLatest {city ->
-            repository.getWeather(city)
-        }
-        .stateIn(
-            scope = viewModelScope,
-            started = SharingStarted.WhileSubscribed(5000),
-            initialValue = Result.Loading
-        )
+    val weatherState: StateFlow<Result<WeatherResponce>> =
+        _cityname
+            .flatMapLatest { city ->
+                repository.getWeather(city)
+            }.stateIn(
+                scope = viewModelScope,
+                started = SharingStarted.WhileSubscribed(5000),
+                initialValue = Result.Loading,
+            ) as StateFlow<Result<WeatherResponce>>
 
     // Call this from your Activity/Fragment when the device location is found
-    fun updateCity(newCity: String){
+    fun updateCity(newCity: String) {
         _cityname.value = newCity
     }
-    }
-
 }

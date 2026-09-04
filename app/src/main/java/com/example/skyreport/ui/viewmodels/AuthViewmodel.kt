@@ -45,4 +45,9 @@ class AuthViewmodel(
 
         }
     }
+
+    //complete all code
+    fun fatchUserdata(){
+
+    }
 }

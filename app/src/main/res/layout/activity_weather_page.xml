@@ -14,7 +14,7 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:scaleType="centerCrop"
-        android:src="@drawable/sunnyday"
+        android:src="@drawable/heavily_cloudy"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
@@ -22,6 +22,7 @@
 
     <!-- 2. Dark Overlay -->
     <View
+        android:id="@+id/overlay"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -38,6 +39,7 @@
         android:scrollbars="none">
 
         <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/weathermain"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingHorizontal="16dp"
@@ -72,59 +74,60 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:strokeWidth="0dp" />
 
-                <!-- Search Card View (Hidden by Default, Constrained to Same Position) -->
-<!--                <androidx.cardview.widget.CardView-->
-<!--                    android:id="@+id/search_bar"-->
-<!--                    android:layout_width="0dp"-->
-<!--                    android:layout_height="48dp"-->
-<!--                    android:visibility="gone"-->
-<!--                    app:cardBackgroundColor="@color/translucent"-->
-<!--                    app:cardCornerRadius="20dp"-->
-<!--                    app:cardElevation="0dp"-->
-<!--                    app:cardPreventCornerOverlap="true"-->
-<!--                    app:cardUseCompatPadding="true"-->
-<!--                    app:layout_constraintBottom_toBottomOf="@+id/locationBtn"-->
-<!--                    app:layout_constraintEnd_toStartOf="@+id/menuBtn"-->
-<!--                    app:layout_constraintStart_toStartOf="parent"-->
-<!--                    app:layout_constraintTop_toTopOf="@+id/locationBtn">-->
+<!--                 Search Card View (Hidden by Default, Constrained to Same Position) -->
+                <androidx.cardview.widget.CardView
+                    android:id="@+id/search_bar"
+                    android:layout_width="0dp"
+                    android:layout_height="50dp"
+                    android:visibility="gone"
+                    app:cardBackgroundColor="@color/translucent"
+                    app:cardCornerRadius="20dp"
+                    app:cardElevation="0dp"
+                    app:cardMaxElevation="0dp"
+                    app:cardPreventCornerOverlap="true"
+                    app:cardUseCompatPadding="true"
+                    app:layout_constraintBottom_toBottomOf="@+id/locationBtn"
+                    app:layout_constraintEnd_toStartOf="@+id/menuBtn"
+                    app:layout_constraintStart_toStartOf="parent"
+                    app:layout_constraintTop_toTopOf="@+id/locationBtn">
 
-<!--                    <LinearLayout-->
-<!--                        android:layout_width="match_parent"-->
-<!--                        android:layout_height="match_parent"-->
-<!--                        android:gravity="center_vertical"-->
-<!--                        android:orientation="horizontal">-->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="match_parent"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
 
-<!--                        <ImageView-->
-<!--                            android:layout_width="24dp"-->
-<!--                            android:layout_height="24dp"-->
-<!--                            android:layout_marginStart="12dp"-->
-<!--                            android:src="@drawable/baseline_search_24"-->
-<!--                            app:tint="@color/white" />-->
+                        <ImageView
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginStart="12dp"
+                            android:src="@drawable/baseline_search_24"
+                            app:tint="@color/white" />
 
-<!--                        <EditText-->
-<!--                            android:id="@+id/search_text"-->
-<!--                            android:layout_width="0dp"-->
-<!--                            android:layout_height="match_parent"-->
-<!--                            android:layout_marginStart="8dp"-->
-<!--                            android:layout_weight="1"-->
-<!--                            android:background="@null"-->
-<!--                            android:hint="Search city..."-->
-<!--                            android:imeOptions="actionSearch"-->
-<!--                            android:inputType="text"-->
-<!--                            android:textColor="@color/white"-->
-<!--                            android:textColorHint="@color/white"-->
-<!--                            android:textSize="16sp" />-->
+                        <EditText
+                            android:id="@+id/search_text"
+                            android:layout_width="0dp"
+                            android:layout_height="match_parent"
+                            android:layout_marginStart="8dp"
+                            android:layout_weight="1"
+                            android:background="@null"
+                            android:hint="Search city..."
+                            android:imeOptions="actionSearch"
+                            android:inputType="text"
+                            android:textColor="@color/white"
+                            android:textColorHint="@color/white"
+                            android:textSize="16sp" />
 
-<!--                        <ImageButton-->
-<!--                            android:id="@+id/clearSearchBtn"-->
-<!--                            android:layout_width="24dp"-->
-<!--                            android:layout_height="24dp"-->
-<!--                            android:layout_marginEnd="12dp"-->
-<!--                            android:background="?attr/selectableItemBackgroundBorderless"-->
-<!--                            android:src="@drawable/baseline_clear_24"-->
-<!--                            app:tint="@color/white" />-->
-<!--                    </LinearLayout>-->
-<!--                </androidx.cardview.widget.CardView>-->
+                        <ImageButton
+                            android:id="@+id/clearSearchBtn"
+                            android:layout_width="24dp"
+                            android:layout_height="24dp"
+                            android:layout_marginEnd="12dp"
+                            android:background="?attr/selectableItemBackgroundBorderless"
+                            android:src="@drawable/baseline_clear_24"
+                            app:tint="@color/white" />
+                    </LinearLayout>
+                </androidx.cardview.widget.CardView>
 
                 <ImageButton
                     android:id="@+id/menuBtn"
@@ -181,6 +184,21 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
             <!-- Hourly Forecast Card -->
+            <ProgressBar
+                android:id="@+id/weatherprogressbar"
+                android:layout_width="match_parent"
+                android:layout_height="60dp"
+                android:layout_marginTop="68dp"
+                android:indeterminate="true"
+                android:indeterminateDrawable="@drawable/progress_bar"
+                android:indeterminateDuration="1800"
+                android:visibility="gone"
+                android:indeterminateOnly="true"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/headerContainer" />
+
             <androidx.cardview.widget.CardView
                 android:id="@+id/cardView"
                 android:layout_width="match_parent"
