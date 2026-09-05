@@ -159,27 +159,34 @@
                 <TextView
                     android:id="@+id/weatherConditionText"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="200dp"
+                    android:gravity="center"
+                    android:layout_marginStart="95dp"
                     android:lines="1"
+                    android:padding="5dp"
                     android:rotation="270"
                     android:text="It's Sunny"
                     android:textColor="@color/white"
-                    android:textSize="20sp"
-                    app:layout_constraintBottom_toBottomOf="@id/tempt"
+                    android:textSize="17sp"
+                    app:layout_constraintBottom_toBottomOf="parent"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="@id/tempt" />
+                    app:layout_constraintStart_toEndOf="@+id/tempt"
+                    app:layout_constraintTop_toBottomOf="@+id/menuBtn"
+                    app:layout_constraintVertical_bias="0.0" />
 
                 <TextView
-                    android:id="@+id/textView3"
+                    android:id="@+id/feeltemp"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="20dp"
-                    android:text="Feels like 33°"
+                    android:text="Feels like 83°"
                     android:textColor="@color/white"
                     android:textSize="18sp"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toBottomOf="@+id/tempt" />
+
+
 
             </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -264,6 +271,7 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/humidityText"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
@@ -273,6 +281,7 @@
                         android:textSize="18sp" />
 
                     <TextView
+                        android:id="@+id/humidityValue"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="87%"
@@ -325,6 +334,7 @@
                     </LinearLayout>
 
                     <TextView
+                        android:id="@+id/windText"
                         android:layout_width="match_parent"
                         android:layout_height="0dp"
                         android:layout_weight="1"
@@ -340,6 +350,7 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/windValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="8"
@@ -419,6 +430,7 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/pressureValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="1008.2"
@@ -496,6 +508,7 @@
                         android:orientation="horizontal">
 
                         <TextView
+                            android:id="@+id/visibilityValue"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="11.00"
@@ -504,6 +517,7 @@
                             android:textStyle="bold" />
 
                         <TextView
+                            android:id="@+id/visibilityUnit"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:layout_marginStart="4dp"

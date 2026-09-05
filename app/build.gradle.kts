@@ -3,6 +3,8 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.google.gms.google.services)
+
+    id("com.google.devtools.ksp") version "2.3.11"
 }
 
 val localProperties = Properties()
@@ -30,12 +32,12 @@ android {
         buildConfigField(
             "String",
             "WEB_CLIENT_ID",
-            "\"${localProperties.getProperty("WEB_CLIENT_ID") ?: ""}\""
+            "\"${localProperties.getProperty("WEB_CLIENT_ID") ?: ""}\"",
         )
         buildConfigField(
             "String",
             "API_KEY",
-            "\"${localProperties.getProperty("API_KEY")?: ""}\""
+            "\"${localProperties.getProperty("API_KEY") ?: ""}\"",
         )
     }
 
@@ -84,8 +86,7 @@ dependencies {
 
     // Coroutines for asynchronous operations
     implementation(libs.kotlinx.coroutines.android)
-    implementation (libs.kotlinx.coroutines.play.services)
-
+    implementation(libs.kotlinx.coroutines.play.services)
 
 // Lifecycle components for ViewModel
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
@@ -93,4 +94,12 @@ dependencies {
 
     implementation(libs.play.services.location)
 
+    dependencies {
+        // Glide library
+        implementation(libs.glide)
+
+        // Optional: For annotations and compiler (if using GlideApp)
+        ksp(libs.ksp.v4160)
+        // Note: If using Kapt instead of KSP, use: kapt("com.github.bumptech.glide:compiler:4.16.0")
+    }
 }

@@ -16,4 +16,9 @@ class WeatherRepo(private val weatherApi: WeatherApi) {
             emit(Resources.Error(e.message?:"An error occurred"))
         }
     }
+
+    suspend fun getWeatherData(cityName: String): WeatherResponce{
+        val apiResponse : WeatherResponce = weatherApi.getWeather(cityName)
+        return  apiResponse
+    }
 }
