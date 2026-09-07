@@ -101,5 +101,9 @@ dependencies {
         // Optional: For annotations and compiler (if using GlideApp)
         ksp(libs.ksp.v4160)
         // Note: If using Kapt instead of KSP, use: kapt("com.github.bumptech.glide:compiler:4.16.0")
+
+        dependencies {
+            implementation(libs.androidx.swiperefreshlayout)
+        }
     }
 }

@@ -11,5 +11,7 @@ object NatworkUtils {
             .baseUrl(Base_Url)
             .addConverterFactory(GsonConverterFactory.create())
             .build()
+
+//        https://weather.googleapis.com/v1/currentConditions:lookup?key=YOUR_API_KEY&location.latitude=LATITUDE&location.longitude=LONGITUDE
     }
 }

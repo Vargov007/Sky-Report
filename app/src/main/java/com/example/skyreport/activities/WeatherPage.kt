@@ -3,6 +3,7 @@ package com.example.skyreport.activities
 import android.Manifest
 import android.annotation.SuppressLint
 import android.content.pm.PackageManager
+import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
@@ -11,6 +12,7 @@ import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 import android.widget.TextView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
@@ -39,6 +41,8 @@ import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.skyreport.data.models.weather.WeatherResponce
 import com.example.skyreport.utils.Resources
 import com.google.android.material.snackbar.Snackbar
+import kotlinx.coroutines.delay
+import kotlin.time.Duration.Companion.milliseconds
 
 //class WeatherPage : BaseActivity() {
 //    private lateinit var auth : FirebaseAuth
@@ -399,6 +403,12 @@ class WeatherPage : BaseActivity() {
         binding = ActivityWeatherPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            fetchWeatherData()
+        }
+
+        observeUiState()
+
         locationhelper = LocationHelper(this)
 
         checkLocationPermission()
@@ -414,6 +424,42 @@ class WeatherPage : BaseActivity() {
         }
 
         textBgColor()
+    }
+
+    fun fetchWeatherData() {
+        lifecycleScope.launch {
+            try {
+                viewmodel.refreshData()
+            }catch (e: Exception){
+            }
+            finally {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+        }
+    }
+
+    private fun observeUiState() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewmodel.weatherState.collect{ state ->
+                    when(state){
+                        is Resources.Loading -> {
+                            if (!binding.swipeRefreshLayout.isRefreshing){
+                                binding.swipeRefreshLayout.isRefreshing = true
+                            }
+                            }
+                        is Resources.Success -> {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                        }
+                        is Resources.Error -> {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                        }
+                    }
+
+                }
+
+            }
+        }
     }
 
     private fun updateWindStatus(currentWind: Int): String {
@@ -471,7 +517,7 @@ class WeatherPage : BaseActivity() {
             }
         }
         binding.clearSearchBtn.setOnClickListener {
-            observeClear()
+                observeClear()
         }
     }
     private fun observeWeather(){
@@ -500,29 +546,68 @@ class WeatherPage : BaseActivity() {
     private fun hideLoading(){
         binding.weatherprogressbar.visibility = View.GONE
     }
-    fun getWeatherBackgroundResource(weatherCondition: String?): Int{
-        return when(weatherCondition?.lowercase()){
-            "sunny", "clear day" -> R.drawable.sunnyday
-            "cloudy day" -> R.drawable.partly_cloudy
-            "rain" -> R.drawable.rainy
-            "heavy rain" -> R.drawable.rainyday
-            "thunderstorm" -> R.drawable.thander
-            "snow" -> R.drawable.snow
-            "mist" -> R.drawable.light_snow
-            "wind" -> R.drawable.wind
-            "clear night" -> R.drawable.night_clear
-            "overcast clouds" -> R.drawable.heavily_cloudy
-            "fog" -> R.drawable.foggy
-            "heat wave" -> R.drawable.heat_wave
-            else -> R.drawable.sunnyday
+    fun getWeatherBackgroundResource(responce: WeatherResponce): Int{
+
+        val currentTime =responce.dt
+        val sunriseTime = responce.sys.sunrise
+        val sunsetTime = responce.sys.sunset
+
+        val isDaytime = currentTime in sunriseTime..sunsetTime
+        val condition = responce.weather.firstOrNull()?.main?.lowercase()?: ""
+        return if (isDaytime){
+            when(condition){
+                //sunny
+                "sunny" -> R.drawable.sunnyday
+                "clear" -> R.drawable.clear_day
+                //clouds
+                "clouds","scattered clouds" -> R.drawable.partly_cloudy
+                "broken clouds","overcast clouds" -> R.drawable.heavy_cloude_day
+                //rain
+                "rain","light rain","moderate rain" -> R.drawable.rainy
+                "heavy rain" -> R.drawable.rainyday
+                //snow
+                "snow","light snow" -> R.drawable.light_snow
+                "heavy snow" -> R.drawable.snow
+                //foggy
+                "mist","fog","haze" -> R.drawable.foggy
+                //thunder
+                "thunderstorm" -> R.drawable.thander_2
+                else -> R.drawable.sunnyday
+            }
+
+
+        }else{
+            when(condition){
+                //sunny
+                "sunny", "clear" -> R.drawable.night_clear
+                //clouds
+                "clouds","scattered clouds" -> R.drawable.cloudy_night
+                "broken clouds","overcast clouds" -> R.drawable.heavily_cloudy
+                //rain
+                "rain","light rain","moderate rain" -> R.drawable.rainy
+                "heavy rain" -> R.drawable.rainyday
+                //snow
+                "light snow","snow" -> R.drawable.light_snow
+                "heavy snow" -> R.drawable.snow_night
+                //foggy
+                "mist","fog","haze" -> R.drawable.foggy
+                //thunder
+                "thunderstorm" -> R.drawable.thander
+                else -> R.drawable.night_clear
+            }
+
+
+
         }
     }
 
     private fun updateWeatherUI(weather : WeatherResponce){
         binding.apply {
+            // Add this line to update the location button text
             locationBtn.text = weather.name
+            searchlocation.text = weather.name
             tempt.text = "${weather.main.temp.toInt()}°"
-            weatherConditionText.text = "It's ${weather.weather[0].description?.replaceFirstChar { it.uppercase() }}"
+            weatherConditionText.text = "It's ${weather.weather.firstOrNull()?.description?.replaceFirstChar { it.uppercase() }}"
             feeltemp.text = "Feels like ${weather.main.feels_like.toInt()}°"
             humidityValue.text = "${weather.main.humidity}%"
             windValue.text = weather.wind.speed.toString()
@@ -533,8 +618,7 @@ class WeatherPage : BaseActivity() {
             windText.text = updateWindStatus(weather.wind.speed.toInt())
         }
 
-        val weatherCondition = weather.weather[0].description
-        val backgroundResource = getWeatherBackgroundResource(weatherCondition)
+        val backgroundResource = getWeatherBackgroundResource(weather)
 
         Glide.with(this@WeatherPage)
             .load(backgroundResource)
@@ -563,17 +647,22 @@ class WeatherPage : BaseActivity() {
         }
     }
 
-    fun observeClear() {
+     fun observeClear() {
         TransitionManager.beginDelayedTransition(binding.headerContainer)
         binding.searchText.text.clear()
-        binding.locationBtn.visibility = View.VISIBLE
+        binding.locationBtn.setTextColor("#F2FFFFFF".toColorInt())
+        binding.locationBtn.iconTint = ColorStateList.valueOf("#F2FFFFFF".toColorInt())
         binding.searchBar.visibility = View.GONE
+         binding.searchlocation.visibility = View.GONE
+         getDevicelocation()
     }
 
     fun observeSearch() {
         TransitionManager.beginDelayedTransition(binding.headerContainer)
-        binding.locationBtn.visibility = View.GONE
+        binding.locationBtn.setTextColor(ContextCompat.getColorStateList(this, R.color.transparent))
+        binding.locationBtn.iconTint = ColorStateList.valueOf(ContextCompat.getColor(this, R.color.transparent))
         binding.searchBar.visibility = View.VISIBLE
+        binding.searchlocation.visibility = View.VISIBLE
         binding.searchText.requestFocus()
     }
     private fun textBgColor() {

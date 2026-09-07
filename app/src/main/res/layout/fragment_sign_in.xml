@@ -11,7 +11,7 @@
     <ImageView
         android:id="@+id/imageView"
         android:layout_width="788dp"
-        android:layout_height="906dp"
+        android:layout_height="match_parent"
         android:src="@drawable/rainfall"
         android:scaleType="centerCrop"
         app:layout_constraintBottom_toBottomOf="parent"

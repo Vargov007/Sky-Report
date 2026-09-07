@@ -11,5 +11,10 @@
         android:name="com.example.skyreport.ui.fragments.SignIn"
         android:label="fragment_sign_in"
         tools:layout="@layout/fragment_sign_in" />
-    
+    <activity
+        android:id="@+id/weatherPage"
+        android:name="com.example.skyreport.activities.WeatherPage"
+        android:label="activity_weather_page"
+        tools:layout="@layout/activity_weather_page" />
+
 </navigation>

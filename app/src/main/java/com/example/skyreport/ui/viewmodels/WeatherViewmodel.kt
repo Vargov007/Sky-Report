@@ -6,9 +6,12 @@ import com.example.skyreport.data.models.weather.WeatherResponce
 import com.example.skyreport.data.repo.WeatherRepo
 import com.example.skyreport.utils.Resources
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -18,12 +21,20 @@ class WeatherViewmodel(
     private val repository: WeatherRepo
 ) : ViewModel() {
 
-    private val _cityName = MutableStateFlow("Kamakhyaguri")
-    val cityName: StateFlow<String> = _cityName
+    private val _cityName = MutableStateFlow("_ _ _ _ _ _ _ _ _ _")
+
+    private val _refreshTrigger = MutableSharedFlow<Unit>(replay = 1).apply {
+        tryEmit(Unit) // Trigger initial load
+    }
+
+    fun refreshData(){
+       viewModelScope.launch { _refreshTrigger.emit(Unit) }
+    }
 
     // Automatically reacts to _cityName changes and updates state
     @OptIn(ExperimentalCoroutinesApi::class)
-    val weatherState: StateFlow<Resources<WeatherResponce>> = _cityName
+    val weatherState: StateFlow<Resources<WeatherResponce>> = combine(_cityName,_refreshTrigger){ city, _ -> city}
+        .filter { it.isNotBlank() && it != "_ _ _ _ _ _ _ _ _ _" }
         .flatMapLatest { city ->
             repository.getWeather(city)
         }
