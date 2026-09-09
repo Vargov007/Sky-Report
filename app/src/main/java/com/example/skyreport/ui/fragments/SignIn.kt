@@ -1,19 +1,26 @@
 package com.example.skyreport.ui.fragments
 
+import android.Manifest
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import com.example.skyreport.BuildConfig
+import com.example.skyreport.activities.WeatherPage
 import com.example.skyreport.databinding.FragmentSignInBinding
 import com.example.skyreport.ui.viewmodels.AuthViewmodel
 import com.example.skyreport.utils.AuthUiState
+import com.example.skyreport.utils.Resources
 import kotlinx.coroutines.launch
 import kotlin.getValue
 
@@ -22,6 +29,9 @@ class SignIn : Fragment() {
     private val viewModel: AuthViewmodel by viewModels()
     private val webClientID = BuildConfig.WEB_CLIENT_ID
 
+
+
+
     override fun onCreateView(
         inflater: LayoutInflater,
         container: ViewGroup?,
@@ -29,7 +39,6 @@ class SignIn : Fragment() {
     ): View {
         // Inflate the layout for this fragment
         binding = FragmentSignInBinding.inflate(inflater, container, false)
-//        return inflater.inflate(R.layout.fragment_sign_in, container, false)
         return binding.root
     }
 
@@ -39,8 +48,59 @@ class SignIn : Fragment() {
     ) {
         super.onViewCreated(view, savedInstanceState)
 
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            fetchWeatherData()
+        }
+
+        observeUiState2()
+
+
+
         setUpClickListeners()
         observeUiState()
+    }
+
+
+
+    private fun observeUiState2() {
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                viewModel.uiState.collect{ state ->
+                    when(state){
+                        is AuthUiState.Loading -> {
+                            if (!binding.swipeRefreshLayout.isRefreshing){
+                                binding.swipeRefreshLayout.isRefreshing = true
+                            }
+                        }
+                        is AuthUiState.Success -> {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                        }
+                        is AuthUiState.Error -> {
+                            binding.swipeRefreshLayout.isRefreshing = false
+                        }
+
+                        is AuthUiState.Idle -> {
+                            binding.swipeRefreshLayout.isRefreshing = false
+
+                        }
+                    }
+
+                }
+
+            }
+        }
+    }
+
+    private fun fetchWeatherData() {
+        lifecycleScope.launch {
+            try {
+                viewModel.refreshData2()
+            }catch (e: Exception){
+            }
+            finally {
+                binding.swipeRefreshLayout.isRefreshing = false
+            }
+        }
     }
 
     private fun observeUiState() {
@@ -68,6 +128,12 @@ class SignIn : Fragment() {
                                     "Welcome, ${state.user?.displayName}!",
                                     Toast.LENGTH_LONG,
                                 ).show()
+
+                            val intent = Intent(requireContext(), WeatherPage::class.java)
+                            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+                            startActivity(intent)
+
+
                         }
 
                         is AuthUiState.Error -> {

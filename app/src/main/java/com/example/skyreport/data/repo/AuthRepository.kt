@@ -11,9 +11,11 @@ import com.google.firebase.auth.AuthResult
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
 import com.google.firebase.auth.GoogleAuthProvider
+import com.google.firebase.firestore.DocumentSnapshot
 import com.google.firebase.firestore.FieldValue
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.firestore.SetOptions
+import com.google.firebase.firestore.auth.User
 import kotlinx.coroutines.tasks.await
 
 class AuthRepository(
@@ -83,5 +85,23 @@ class AuthRepository(
 
     suspend fun signOut(){
         auth.signOut()
+    }
+
+    suspend fun fetchUserData() {
+        val user = auth.currentUser ?: return
+
+        val userMap = hashMapOf(
+            "uid" to user.uid,
+            "name" to (user.displayName ?: ""),
+            "email" to (user.email ?: ""),
+            "photoUrl" to (user.photoUrl?.toString() ?: ""),
+            "lastLogin" to FieldValue.serverTimestamp()
+        )
+
+        // SetOptions.merge() prevents overwriting existing fields on re-login
+        firestore.collection("users")
+            .document(user.uid)
+            .set(userMap, SetOptions.merge())
+            .await()
     }
 }

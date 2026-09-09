@@ -7,6 +7,8 @@ import android.content.res.ColorStateList
 import android.graphics.Color
 import android.graphics.LinearGradient
 import android.graphics.Shader
+import android.net.ConnectivityManager
+import android.net.NetworkCapabilities
 import android.os.Bundle
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -16,11 +18,17 @@ import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.toColorInt
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.transition.TransitionManager
+import com.bumptech.glide.Glide
+import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
 import com.example.skyreport.R
 import com.example.skyreport.data.api.WeatherApi
+import com.example.skyreport.data.models.weather.WeatherResponce
 import com.example.skyreport.data.repo.WeatherRepo
 import com.example.skyreport.databinding.ActivityWeatherPageBinding
 import com.example.skyreport.service.LocationHelper
@@ -29,369 +37,36 @@ import com.example.skyreport.ui.viewmodels.AuthViewmodelFactory
 import com.example.skyreport.ui.viewmodels.WeatherViewmodel
 import com.example.skyreport.ui.viewmodels.WeatherViewmodelFactory
 import com.example.skyreport.utils.NatworkUtils
+import com.example.skyreport.utils.Resources
+import com.google.android.material.snackbar.Snackbar
+import android.content.Context
+import com.example.skyreport.BuildConfig
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
-import androidx.core.graphics.toColorInt
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.repeatOnLifecycle
-import com.bumptech.glide.Glide
-import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions
-import com.example.skyreport.data.models.weather.WeatherResponce
-import com.example.skyreport.utils.Resources
-import com.google.android.material.snackbar.Snackbar
-import kotlinx.coroutines.delay
-import kotlin.time.Duration.Companion.milliseconds
-
-//class WeatherPage : BaseActivity() {
-//    private lateinit var auth : FirebaseAuth
-//    private lateinit var viewmodel : WeatherViewmodel
-//    private lateinit var authViewmodel : AuthViewmodel
-////    private lateinit var toggle: ActionBarDrawerToggle
-//    private lateinit var binding: ActivityWeatherPageBinding
-//    private lateinit var locationhelper : LocationHelper
-//
-//    private val requestpermissitionLauncher = registerForActivityResult(
-//        ActivityResultContracts.RequestMultiplePermissions()
-//    ){ result ->
-//        if (result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)){
-//            getDevicelocation()
-//        }
-//
-//    }
-//
-//    @SuppressLint("MissingPermission")
-//    private fun getDevicelocation() {
-//        lifecycleScope.launch {
-//            val detectCity = locationhelper.getCurrentCity()
-//            if (!detectCity.isNullOrEmpty()){
-//                viewmodel.updateCity(detectCity)
-//            }
-//        }
-//    }
-//    override fun onCreate(savedInstanceState: Bundle?) {
-//        super.onCreate(savedInstanceState)
-//        enableEdgeToEdge()
-//        binding = ActivityWeatherPageBinding.inflate(layoutInflater)
-//        setContentView(binding.root)
-//
-//        locationhelper = LocationHelper(this)
-//        //
-//        checkLocationPermission()
-//        setupAuthViewmodel()
-//        setupViewmodel()
-//        setupUi()
-//        observeWeather()
-//
-//        //about search bar
-//        binding.locationBtn.setOnClickListener {
-//            observeSearch()
-//        }
-//        binding.weathermain.setOnClickListener {
-//            observeClear()
-//        }
-//
-//// temp text bgcolour
-//        textBgColor()
-//
-//// About humidity text
-//        val humidity = binding.humidityText
-//        val cleantext = binding.humidityValue.text.toString().trim()
-//        val currentHumidity = cleantext.toIntOrNull() ?: 0
-//        updateHumidityStatus(currentHumidity)
-//        humidity.text = updateHumidityStatus(currentHumidity)
-//
-//        // About wind text
-//        val wind = binding.windText
-//        val windtext = binding.windValue.text.toString().trim()
-//        val currentWind = windtext.toIntOrNull()?:0
-//        updateWindStatus(currentWind)
-//        wind.text = updateWindStatus(currentWind)
-//    }
-//    // About wind text
-//    private fun updateWindStatus(currentWind: Int): String {
-//        val statustext = when {
-//            currentWind < 0 ->"Invalid Reading"
-//            currentWind == 0 -> "it's calm"
-//            currentWind in  1..3 -> "There is a light breeze"
-//            currentWind in 4.. 6 -> "There is a moderate breeze"
-//            currentWind in 7..9 -> "There is a strong gale"
-//            currentWind in 10..12 -> "It's storm"
-//            else -> "Invalid Reading"
-//        }
-//        return statustext
-//    }
-//
-//    // About humidity text
-//    private fun updateHumidityStatus(currentHumidity: Int): String {
-//        val statustext = when {
-//            currentHumidity < 0  -> "Invalid Reading"
-//            currentHumidity in 0..30 -> " Dry Weather"
-//            currentHumidity in 31..50 -> "Comfortable Weather"
-//            currentHumidity in 51..60 -> "Humid Weather"
-//            currentHumidity in 61..64 -> "Vary Humid Weather"
-//            currentHumidity in 65..80 -> "Muggys and Sticky Weather"
-//            currentHumidity in 81..100 -> "saturated Weather"
-//            else -> "Invalid Reading"
-//        }
-//        return statustext
-//    }
-//
-//
-//    private fun setupViewmodel() {
-//        val weatherApi = NatworkUtils.getRetrofitInstance().create(WeatherApi::class.java)
-//        val repository = WeatherRepo(weatherApi)
-//        val factory = WeatherViewmodelFactory(repository)
-//         viewmodel = ViewModelProvider(this, factory)[WeatherViewmodel::class.java]
-//    }
-//
-//    private fun setupAuthViewmodel(){
-//        val factory = AuthViewmodelFactory()
-//        authViewmodel = ViewModelProvider(this, factory)[AuthViewmodel::class.java]
-////        auth = Firebase.auth
-//
-//        //first complete authViewmodel then it
-////        auth.currentUser?.let {
-////        }
-//    }
-//
-//    private fun setupUi() {
-//        binding.searchText.setOnEditorActionListener { _, actionid, event ->
-//            (if (actionid == EditorInfo.IME_ACTION_SEARCH){
-//                val quary = binding.searchText.text.toString()
-//                if (quary .isEmpty()){
-//                    showLoading()
-//
-//                    val imm = getSystemService(INPUT_METHOD_SERVICE)as InputMethodManager
-//                    imm.hideSoftInputFromWindow(binding.searchText.windowToken,0)
-//
-//                    viewmodel.updateCity(quary)
-//                }else{
-//                    false
-//                }
-//            }else{
-//                false
-//            }) as Boolean
-//        }
-//        binding.clearSearchBtn.setOnClickListener {
-//            observeClear()
-//        }
-//    }
-//
-//    private fun observeWeather(){
-//        lifecycleScope.launch {
-//            viewmodel.weatherState.collect {state ->
-//                when(state){
-//                    is Resources.Loading -> showLoading()
-//                    is Resources.Success -> {
-//                        hideLoading()
-//                        state.data?.let { updateWeatherUI(it) }
-//                    }
-//                    is Resources.Error ->{
-//                        hideLoading()         // //complete it
-//                        showErrorMessage(state.message)            // //complete it
-//                    }
-//                }
-//            }
-//        }
-//    }
-//
-//    private fun showLoading(){
-//        binding.weatherprogressbar.visibility = View.VISIBLE
-//        binding.overlay.setBackgroundColor("#33000000".toColorInt())
-//
-//    }
-//    private fun hideLoading(){
-//        binding.weatherprogressbar.visibility = View.GONE
-//
-//    }
-//
-//    fun getWeatherBackgroundResource(weatherCondition: String?): Int{
-//        return when(weatherCondition?.lowercase()){
-//            "sunny" -> R.drawable.sunnyday
-//            "clear day" -> R.drawable.sunnyday
-//            "cloudy day" -> R.drawable.partly_cloudy
-//            "rain" -> R.drawable.rainy
-//            "heavy rain" -> R.drawable.rainyday
-//            "thunderstorm" -> R.drawable.thander
-//            "snow" -> R.drawable.snow
-//            "mist" -> R.drawable.light_snow
-//            "wind" -> R.drawable.wind
-//            "clear night" -> R.drawable.night_clear
-//            "overcast clouds" -> R.drawable.heavily_cloudy
-//            "fog" -> R.drawable.foggy
-//            "heat wave" -> R.drawable.heat_wave
-//            else -> R.drawable.sunnyday
-//        }
-//    }
-//
-//    private fun updateWeatherUI(weather : WeatherResponce){
-//
-//        binding.apply {
-//            tempt.text = "${weather.main.temp.toInt()}°"
-//            weatherConditionText.text = "IT's ${weather.weather[0].description?.capitalize()}"
-//            feeltemp.text = "Feels like ${weather.main.feels_like.toInt()}°"
-//            humidityValue.text = "${weather.main.humidity}%"
-//            windValue.text = "${weather.wind.speed}"
-//            pressureValue.text = "${weather.main.pressure}"
-//            visibilityValue.text = formatVisibility(weather.visibility)
-//
-//
-//            //sunset and sunrise if you add
-//
-//        }
-//        lifecycleScope.launch {
-//            repeatOnLifecycle(Lifecycle.State.STARTED){
-//                viewmodel.weatherState.collect{ resource ->
-//                    when(resource){
-//                        is Resources.Loading -> showLoading()
-//                        is Resources.Success -> {
-//                            val apiResponce : WeatherResponce? = resource.data
-//                            val weatherCondition = apiResponce?.weather[0]?.description
-//                            val backgroundResource = getWeatherBackgroundResource(weatherCondition)
-//
-//                            Glide.with(this@WeatherPage)
-//                                .load(backgroundResource)
-//                                .transition(DrawableTransitionOptions.withCrossFade())
-//                                .into(binding.weatherBgImage)
-//                        }
-//                        is Resources.Error -> {
-//                            hideLoading()
-//                            showErrorMessage(resource.message)
-//                        }
-//                    }
-//
-//                }
-//            }
-//        }
-//    }
-//
-//    fun formatVisibility(visibility: Int): CharSequence {
-//        return when{
-//            visibility >= 1000 -> "${visibility/1000}"
-//            else -> "${visibility}"
-//        }
-//    }
-//
-//    private fun showErrorMessage(message: String?) {
-//        Snackbar.make(binding.root, message ?: "Unknown Error", Snackbar.LENGTH_LONG).apply {
-//            setAction("Retry"){
-//                viewmodel.weatherState
-//            }
-//            show()
-//        }
-//    }
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//    private fun checkLocationPermission() {
-//        when {
-//            ContextCompat.checkSelfPermission(
-//                this, Manifest.permission.ACCESS_COARSE_LOCATION
-//            ) == PackageManager.PERMISSION_GRANTED -> {
-//                getDevicelocation()
-//            }
-//            else ->{
-//                requestpermissitionLauncher.launch(arrayOf(Manifest.permission.ACCESS_COARSE_LOCATION))
-//            }
-//        }
-//    }
-//
-//    fun observeClear() {
-//        TransitionManager.beginDelayedTransition(binding.headerContainer)
-//        binding.searchText.text.clear()
-//        binding.locationBtn.visibility = View.VISIBLE
-//        binding.searchBar.visibility = View.GONE
-//    }
-//
-//
-//    fun observeSearch() {
-//        TransitionManager.beginDelayedTransition((binding.headerContainer))
-//        binding.locationBtn.visibility = View.GONE
-//        binding.searchBar.visibility = View.VISIBLE
-//        binding.searchText.requestFocus()
-//
-//    }
-//
-//
-//    private fun textBgColor() {
-//        val textview = findViewById<TextView>(R.id.tempt)
-//
-//// Ensure the TextView has been laid out so we can get its exact height
-//        textview.post {
-//            val paint = textview.paint
-//            val height = textview.height.toFloat() // Get height instead of width
-//
-//            // Create the linear gradient shader (Top to Bottom)
-//            val textShader =
-//                LinearGradient(
-//                    0f,
-//                    0f,
-//                    0f,
-//                    height, // Start and end points of the gradient.
-//                    intArrayOf(
-//                        Color.parseColor("#FFFFFF"), // Start color
-//                        Color.parseColor("#89DBCFCF"),
-//                    ),
-//                    null,
-//                    Shader.TileMode.CLAMP,
-//                )
-//            // Assign the shader to the TextView's paint object
-//            paint.shader = textShader
-//            textview.invalidate() // Redraw the TextView with the vertical gradient
-//        }
-//    }
-//}
-
-
-
-
-
-
 
 class WeatherPage : BaseActivity() {
-    private lateinit var auth : FirebaseAuth
-    private lateinit var viewmodel : WeatherViewmodel
-    private lateinit var authViewmodel : AuthViewmodel
+    private lateinit var auth: FirebaseAuth
+    private lateinit var viewmodel: WeatherViewmodel
+    private lateinit var authViewmodel: AuthViewmodel
     private lateinit var binding: ActivityWeatherPageBinding
-    private lateinit var locationhelper : LocationHelper
+    private lateinit var locationhelper: LocationHelper
 
-    private val requestpermissitionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestMultiplePermissions()
-    ) { result ->
-        if (result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
-            getDevicelocation()
+    private val requestpermissitionLauncher =
+        registerForActivityResult(
+            ActivityResultContracts.RequestMultiplePermissions(),
+        ) { result ->
+            if (result.getOrDefault(Manifest.permission.ACCESS_COARSE_LOCATION, false)) {
+                getDevicelocation()
+            }
         }
-    }
 
     @SuppressLint("MissingPermission")
     private fun getDevicelocation() {
         lifecycleScope.launch {
             val detectCity = locationhelper.getCurrentCity()
-            if (!detectCity.isNullOrEmpty()){
+            if (!detectCity.isNullOrEmpty()) {
                 viewmodel.updateCity(detectCity)
             }
         }
@@ -403,36 +78,57 @@ class WeatherPage : BaseActivity() {
         binding = ActivityWeatherPageBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        overridePendingTransition(R.anim.fade_in, 0)
+
         binding.swipeRefreshLayout.setOnRefreshListener {
             fetchWeatherData()
         }
+
+        binding.version.text = "v${BuildConfig.VERSION_NAME}"            // Set the version name in the TextView
 
         observeUiState()
 
         locationhelper = LocationHelper(this)
 
-        checkLocationPermission()
-        setupAuthViewmodel()
-        setupViewmodel()
-        setupUi()
-        observeWeather()
-        binding.locationBtn.setOnClickListener {
+        checkLocationPermission()      // Check for location permission before getting the device location
+        setupAuthViewmodel()          // Initialize the authentication viewmodel
+        setupViewmodel()             // Initialize the weather viewmodel
+        setupUi()                   // Set up the UI elements
+        observeWeather()           // Observe the weather data from the viewmodel
+        binding.locationBtn.setOnClickListener {      // Show the search bar when clicking on the location button
             observeSearch()
         }
-        binding.weathermain.setOnClickListener {
+        binding.weathermain.setOnClickListener {      // Clear the search bar when clicking outside
             observeClear()
         }
 
-        textBgColor()
+        textBgColor()   // Set the background color of the TextView
+
+        checkNetworkandConnection(this)     // Check for internet connection before making API calls
+
+
+    }
+
+     fun checkNetworkandConnection(context: WeatherPage) {
+        if (!isNetworkAvailable(context)){
+            Toast.makeText(this, "No internet connection ", Toast.LENGTH_LONG).show()
+
+        }
+    }
+    private fun isNetworkAvailable(context: Context): Boolean {
+        // Corrected variable name and used the more modern way to get services
+        val connectivityManager = context.getSystemService(ConnectivityManager::class.java)
+        val network = connectivityManager?.activeNetwork ?: return false
+        val capability = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return capability.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
     fun fetchWeatherData() {
         lifecycleScope.launch {
             try {
                 viewmodel.refreshData()
-            }catch (e: Exception){
-            }
-            finally {
+            } catch (e: Exception) {
+            } finally {
                 binding.swipeRefreshLayout.isRefreshing = false
             }
         }
@@ -440,30 +136,30 @@ class WeatherPage : BaseActivity() {
 
     private fun observeUiState() {
         lifecycleScope.launch {
-            repeatOnLifecycle(Lifecycle.State.STARTED){
-                viewmodel.weatherState.collect{ state ->
-                    when(state){
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewmodel.weatherState.collect { state ->
+                    when (state) {
                         is Resources.Loading -> {
-                            if (!binding.swipeRefreshLayout.isRefreshing){
+                            if (!binding.swipeRefreshLayout.isRefreshing) {
                                 binding.swipeRefreshLayout.isRefreshing = true
                             }
-                            }
+                        }
+
                         is Resources.Success -> {
                             binding.swipeRefreshLayout.isRefreshing = false
                         }
+
                         is Resources.Error -> {
                             binding.swipeRefreshLayout.isRefreshing = false
                         }
                     }
-
                 }
-
             }
         }
     }
 
-    private fun updateWindStatus(currentWind: Int): String {
-        return when {
+    private fun updateWindStatus(currentWind: Int): String =
+        when {
             currentWind < 0 -> "Invalid Reading"
             currentWind == 0 -> "It's calm"
             currentWind in 1..3 -> "There is a light breeze"
@@ -472,10 +168,9 @@ class WeatherPage : BaseActivity() {
             currentWind in 10..12 -> "It's a storm"
             else -> "Invalid Reading"
         }
-    }
 
-    private fun updateHumidityStatus(currentHumidity: Int): String {
-        return when {
+    private fun updateHumidityStatus(currentHumidity: Int): String =
+        when {
             currentHumidity < 0 -> "Invalid Reading"
             currentHumidity in 0..30 -> "Dry Weather"
             currentHumidity in 31..50 -> "Comfortable Weather"
@@ -485,7 +180,6 @@ class WeatherPage : BaseActivity() {
             currentHumidity in 81..100 -> "Saturated Weather"
             else -> "Invalid Reading"
         }
-    }
 
     private fun setupViewmodel() {
         val weatherApi = NatworkUtils.getRetrofitInstance().create(WeatherApi::class.java)
@@ -493,7 +187,8 @@ class WeatherPage : BaseActivity() {
         val factory = WeatherViewmodelFactory(repository)
         viewmodel = ViewModelProvider(this, factory)[WeatherViewmodel::class.java]
     }
-    private fun setupAuthViewmodel(){
+
+    private fun setupAuthViewmodel() {
         val factory = AuthViewmodelFactory()
         authViewmodel = ViewModelProvider(this, factory)[AuthViewmodel::class.java]
         auth = Firebase.auth
@@ -517,18 +212,23 @@ class WeatherPage : BaseActivity() {
             }
         }
         binding.clearSearchBtn.setOnClickListener {
-                observeClear()
+            observeClear()
         }
     }
-    private fun observeWeather(){
+
+    private fun observeWeather() {
         lifecycleScope.launch {
             viewmodel.weatherState.collect { state ->
-                when(state){
-                    is Resources.Loading -> showLoading()
+                when (state) {
+                    is Resources.Loading -> {
+                        showLoading()
+                    }
+
                     is Resources.Success -> {
                         hideLoading()
                         state.data?.let { updateWeatherUI(it) }
                     }
+
                     is Resources.Error -> {
                         hideLoading()
                         showErrorMessage(state.message)
@@ -538,70 +238,88 @@ class WeatherPage : BaseActivity() {
         }
     }
 
-    private fun showLoading(){
+    private fun showLoading() {
         binding.weatherprogressbar.visibility = View.VISIBLE
         binding.overlay.setBackgroundColor("#33000000".toColorInt())
     }
 
-    private fun hideLoading(){
+    private fun hideLoading() {
         binding.weatherprogressbar.visibility = View.GONE
     }
-    fun getWeatherBackgroundResource(responce: WeatherResponce): Int{
 
-        val currentTime =responce.dt
+    fun getWeatherBackgroundResource(responce: WeatherResponce): Int {
+        val currentTime = responce.dt
         val sunriseTime = responce.sys.sunrise
         val sunsetTime = responce.sys.sunset
 
         val isDaytime = currentTime in sunriseTime..sunsetTime
-        val condition = responce.weather.firstOrNull()?.main?.lowercase()?: ""
-        return if (isDaytime){
-            when(condition){
-                //sunny
+        val condition =
+            responce.weather
+                .firstOrNull()
+                ?.main
+                ?.lowercase() ?: ""
+        return if (isDaytime) {
+            when (condition) {
+                // sunny
                 "sunny" -> R.drawable.sunnyday
+
                 "clear" -> R.drawable.clear_day
-                //clouds
-                "clouds","scattered clouds" -> R.drawable.partly_cloudy
-                "broken clouds","overcast clouds" -> R.drawable.heavy_cloude_day
-                //rain
-                "rain","light rain","moderate rain" -> R.drawable.rainy
+
+                // clouds
+                "clouds", "scattered clouds" -> R.drawable.partly_cloudy
+
+                "broken clouds", "overcast clouds" -> R.drawable.heavy_cloude_day
+
+                // rain
+                "rain", "light rain", "moderate rain" -> R.drawable.rainy
+
                 "heavy rain" -> R.drawable.rainyday
-                //snow
-                "snow","light snow" -> R.drawable.light_snow
+
+                // snow
+                "snow", "light snow" -> R.drawable.light_snow
+
                 "heavy snow" -> R.drawable.snow
-                //foggy
-                "mist","fog","haze" -> R.drawable.foggy
-                //thunder
+
+                // foggy
+                "mist", "fog", "haze" -> R.drawable.foggy
+
+                // thunder
                 "thunderstorm" -> R.drawable.thander_2
+
                 else -> R.drawable.sunnyday
             }
-
-
-        }else{
-            when(condition){
-                //sunny
+        } else {
+            when (condition) {
+                // sunny
                 "sunny", "clear" -> R.drawable.night_clear
-                //clouds
-                "clouds","scattered clouds" -> R.drawable.cloudy_night
-                "broken clouds","overcast clouds" -> R.drawable.heavily_cloudy
-                //rain
-                "rain","light rain","moderate rain" -> R.drawable.rainy
+
+                // clouds
+                "clouds", "scattered clouds" -> R.drawable.cloudy_night
+
+                "broken clouds", "overcast clouds" -> R.drawable.heavily_cloudy
+
+                // rain
+                "rain", "light rain", "moderate rain" -> R.drawable.rainy
+
                 "heavy rain" -> R.drawable.rainyday
-                //snow
-                "light snow","snow" -> R.drawable.light_snow
+
+                // snow
+                "light snow", "snow" -> R.drawable.light_snow
+
                 "heavy snow" -> R.drawable.snow_night
-                //foggy
-                "mist","fog","haze" -> R.drawable.foggy
-                //thunder
+
+                // foggy
+                "mist", "fog", "haze" -> R.drawable.foggy
+
+                // thunder
                 "thunderstorm" -> R.drawable.thander
+
                 else -> R.drawable.night_clear
             }
-
-
-
         }
     }
 
-    private fun updateWeatherUI(weather : WeatherResponce){
+    private fun updateWeatherUI(weather: WeatherResponce) {
         binding.apply {
             // Add this line to update the location button text
             locationBtn.text = weather.name
@@ -616,22 +334,42 @@ class WeatherPage : BaseActivity() {
 
             humidityText.text = updateHumidityStatus(weather.main.humidity)
             windText.text = updateWindStatus(weather.wind.speed.toInt())
+            visibilityText.text = updateVisibilityStatus(weather.visibility)
+            pressureText.text = updatePressureStatus(weather.main.pressure)
         }
 
         val backgroundResource = getWeatherBackgroundResource(weather)
 
-        Glide.with(this@WeatherPage)
+        Glide
+            .with(this@WeatherPage)
             .load(backgroundResource)
             .transition(DrawableTransitionOptions.withCrossFade())
             .into(binding.weatherBgImage)
     }
-    fun formatVisibility(visibility: Int): CharSequence {
-        return if (visibility >= 1000) "${visibility / 1000}" else "$visibility"
-    }
+
+    fun updatePressureStatus(pressure: Int): String =
+        when{
+            pressure > 1020 -> "High pressure \n possibility Clear"
+            pressure < 1010 -> "Low pressure \n possibility Storm"
+            else -> "Average atmospheric pressure"
+        }
+
+    fun updateVisibilityStatus(visibility: Int): String =
+        when{
+            visibility > 10 ->  " crystal-clear visibility"
+            visibility in 4..9 -> "Good visibility"
+            visibility in 1.. 4 -> "Moderate visibility"
+            visibility.toDouble() in 0.5..1.0 -> "Poor visibility"
+            else -> "Very poor visibility"
+        }
+
+
+
+    fun formatVisibility(visibility: Int): CharSequence = if (visibility >= 1000) "${visibility / 1000}" else "$visibility"
 
     private fun showErrorMessage(message: String?) {
         Snackbar.make(binding.root, message ?: "Unknown Error", Snackbar.LENGTH_LONG).apply {
-            setAction("Retry"){
+            setAction("Retry") {
                 val query = binding.searchText.text.toString()
                 if (query.isNotEmpty()) viewmodel.updateCity(query)
             }
@@ -647,14 +385,14 @@ class WeatherPage : BaseActivity() {
         }
     }
 
-     fun observeClear() {
+    fun observeClear() {
         TransitionManager.beginDelayedTransition(binding.headerContainer)
         binding.searchText.text.clear()
         binding.locationBtn.setTextColor("#F2FFFFFF".toColorInt())
         binding.locationBtn.iconTint = ColorStateList.valueOf("#F2FFFFFF".toColorInt())
         binding.searchBar.visibility = View.GONE
-         binding.searchlocation.visibility = View.GONE
-         getDevicelocation()
+        binding.searchlocation.visibility = View.GONE
+        getDevicelocation()
     }
 
     fun observeSearch() {
@@ -665,16 +403,22 @@ class WeatherPage : BaseActivity() {
         binding.searchlocation.visibility = View.VISIBLE
         binding.searchText.requestFocus()
     }
+
     private fun textBgColor() {
         val textview = findViewById<TextView>(R.id.tempt)
         textview.post {
             val paint = textview.paint
             val height = textview.height.toFloat()
-            val textShader = LinearGradient(
-                0f, 0f, 0f, height,
-                intArrayOf(Color.parseColor("#FFFFFF"), Color.parseColor("#89DBCFCF")),
-                null, Shader.TileMode.CLAMP
-            )
+            val textShader =
+                LinearGradient(
+                    0f,
+                    0f,
+                    0f,
+                    height,
+                    intArrayOf(Color.parseColor("#FFFFFF"), Color.parseColor("#89DBCFCF")),
+                    null,
+                    Shader.TileMode.CLAMP,
+                )
             paint.shader = textShader
             textview.invalidate()
         }
