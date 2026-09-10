@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.drawerlayout.widget.DrawerLayout
+    android:id="@+id/drawer_layout"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:tools="http://schemas.android.com/tools"
@@ -9,8 +10,7 @@
     app:layout_constraintTop_toTopOf="parent"
     tools:openDrawer="start"
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:id="@+id/main"
@@ -152,17 +152,16 @@
 
                         <ImageButton
                             android:id="@+id/menuBtn"
-                            android:layout_width="40dp"
-                            android:layout_height="40dp"
-                            android:layout_marginEnd="16dp"
+                            android:layout_width="35dp"
+                            android:layout_height="35dp"
+                            android:layout_marginEnd="15dp"
                             android:background="@drawable/circle"
                             android:scaleType="centerCrop"
                             android:src="@drawable/baseline_person_24"
                             android:contentDescription="Menu Button"
                             app:layout_constraintBottom_toBottomOf="@id/locationBtn"
                             app:layout_constraintEnd_toEndOf="parent"
-                            app:layout_constraintTop_toTopOf="@id/locationBtn"
-                            app:tint="@null" />
+                            app:layout_constraintTop_toTopOf="@id/locationBtn" />
 
                         <TextView
                             android:id="@+id/tempt"
@@ -574,140 +573,134 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/navView"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="start"
-        android:backgroundTint="@color/translucent2"
-        android:paddingTop="500dp"
+        android:layout_width="290dp"
+        android:layout_height="400dp"
+        android:layout_gravity="start|bottom"
+        android:background="@drawable/corners_nav"
         android:elevation="0dp"
         app:elevation="0dp">
 
-        <LinearLayout
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingStart="20dp"
-            android:layout_marginTop="93dp">
+            android:layout_height="match_parent"
+            android:fillViewport="true"
+            android:scrollbars="none">
 
-            <ImageView
-                android:layout_width="50dp"
-                android:layout_height="40dp"
-                android:tint="@color/white"
-                android:src="@drawable/theme"/>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:text="Theme"
-                android:textSize="25sp"
-                android:textColor="@color/white"
-                android:gravity="center"
-                android:layout_marginStart="10dp"/>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:paddingHorizontal="16dp"
+                android:paddingVertical="24dp">
 
-            <Switch
-                android:id="@+id/themeswitch"
-                android:layout_width="wrap_content"
-                android:layout_height="40dp"
-                android:gravity="center"
-                android:layout_gravity="end"
-                android:layout_marginEnd="20dp"
-                />
+                <!-- Empty weight spacer to push all actions & footer to the bottom -->
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="1" />
 
+                <!-- Logout Button -->
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/logoutbtn"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="32dp"
+                    android:background="@color/transparent"
+                    android:backgroundTint="@color/transparent"
+                    android:gravity="start|center_vertical"
+                    android:paddingStart="20dp"
+                    android:text="Log out"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    app:icon="@drawable/logout"
+                    app:iconGravity="textStart"
+                    app:iconPadding="16dp"
+                    app:iconSize="24dp"
+                    app:iconTint="@color/white"
+                    app:strokeWidth="0dp" />
 
+                <!-- About Us Section -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="1dp"
+                    android:gravity="center"
+                    android:text="----:  About Us  :----"
+                    android:textColor="@color/white"
+                    android:textSize="20sp"
+                    android:textStyle="bold" />
 
-        </LinearLayout>
+                <!-- Social / Portfolio Link 1 -->
+                <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="0dp"
+                    android:background="@color/transparent"
+                    android:backgroundTint="@color/transparent"
+                    android:gravity="start|center_vertical"
+                    android:paddingStart="20dp"
+                    android:paddingTop="20dp"
+                    android:text="Vargov_.xyz"
+                    android:textColor="@color/white"
+                    android:textSize="15sp"
+                    android:textStyle="italic"
+                    app:icon="@drawable/insta_logo"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconSize="22dp"
+                    app:iconTint="@color/white"
+                    app:strokeWidth="0dp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/logoutbtn"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            app:strokeWidth="0dp"
-            android:layout_gravity="bottom"
-            android:paddingStart="30dp"
-            android:gravity="start"
-            android:layout_marginBottom="255dp"
-            android:text="Log out"
-            android:textSize="25sp"
-            android:textColor="@color/white"
-            app:icon="@drawable/logout"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white"
-            app:iconPadding="15dp"
-            app:iconSize="30dp"
-            />
+                <!-- Contact Email Button -->
+                <com.google.android.material.button.MaterialButton
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginBottom="24dp"
+                    android:background="@color/transparent"
+                    android:backgroundTint="@color/transparent"
+                    android:gravity="start|center_vertical"
+                    android:maxLines="1"
+                    android:paddingStart="20dp"
+                    android:text="natuervargov159@gmail.com"
+                    android:textColor="@color/white"
+                    android:textSize="14sp"
+                    android:textStyle="italic"
+                    app:icon="@drawable/eamil_logo"
+                    app:iconGravity="textStart"
+                    app:iconPadding="12dp"
+                    app:iconSize="20dp"
+                    app:iconTint="@color/white"
+                    app:strokeWidth="0dp" />
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="About Us"
-            android:textColor="@color/white"
-            android:textSize="24sp"
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            android:layout_marginBottom="167dp"
-            />
+                <!-- Brand Footer Title -->
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:fontFamily="@font/curly_font"
+                    android:text="Vargov's Creations"
+                    android:textColor="@color/white"
+                    android:textSize="22sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            app:strokeWidth="0dp"
-            android:layout_gravity="bottom"
-            android:paddingStart="30dp"
-            android:gravity="start"
-            android:layout_marginBottom="122dp"
-            android:text="Vargov_.xyz"
-            android:textStyle="italic"
-            android:textSize="20sp"
-            android:textColor="@color/white"
-            app:icon="@drawable/insta_logo"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white"
-            app:iconSize="28dp"
-            />
+                <!-- App Version -->
+                <TextView
+                    android:id="@+id/version"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:gravity="center"
+                    android:text="v1.0.0"
+                    android:textColor="@color/white"
+                    android:textSize="13sp" />
 
-        <com.google.android.material.button.MaterialButton
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            app:strokeWidth="0dp"
-            android:layout_gravity="bottom"
-            android:paddingStart="30dp"
-            android:gravity="start"
-            android:layout_marginBottom="89dp"
-            android:text="natuervargov159@gmail.com"
-            android:lines="1"
-            android:textStyle="italic"
-            android:textSize="20sp"
-            android:textColor="@color/white"
-            app:icon="@drawable/eamil_logo"
-            app:iconGravity="textStart"
-            app:iconTint="@color/white"
-            app:iconSize="26dp"
-            />
-
-
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Vargov's  Creations"
-            android:textSize="25sp"
-            android:gravity="center"
-            android:layout_marginBottom="44dp"
-            android:layout_gravity="bottom"
-            android:fontFamily="@font/curly_font"
-            android:textColor="@color/white"/>
-
-        <TextView
-            android:id="@+id/version"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            android:text= "v1.0.0"
-            android:textSize="15sp"
-            android:textColor="@color/white"
-            android:layout_marginBottom="20dp"/>
+            </LinearLayout>
+        </ScrollView>
     </com.google.android.material.navigation.NavigationView>
+
 </androidx.drawerlayout.widget.DrawerLayout>

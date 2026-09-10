@@ -40,7 +40,15 @@ import com.example.skyreport.utils.NatworkUtils
 import com.example.skyreport.utils.Resources
 import com.google.android.material.snackbar.Snackbar
 import android.content.Context
+import android.content.Intent
+import android.util.Log
+import androidx.appcompat.app.ActionBarDrawerToggle
+import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.GravityCompat
 import com.example.skyreport.BuildConfig
+import com.example.skyreport.utils.AuthUiState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -52,6 +60,8 @@ class WeatherPage : BaseActivity() {
     private lateinit var authViewmodel: AuthViewmodel
     private lateinit var binding: ActivityWeatherPageBinding
     private lateinit var locationhelper: LocationHelper
+
+    private lateinit var toggol : ActionBarDrawerToggle
 
     private val requestpermissitionLauncher =
         registerForActivityResult(
@@ -95,6 +105,10 @@ class WeatherPage : BaseActivity() {
         setupViewmodel()             // Initialize the weather viewmodel
         setupUi()                   // Set up the UI elements
         observeWeather()           // Observe the weather data from the viewmodel
+        setupDrawer()
+        fetchuserdata()
+
+
         binding.locationBtn.setOnClickListener {      // Show the search bar when clicking on the location button
             observeSearch()
         }
@@ -133,6 +147,97 @@ class WeatherPage : BaseActivity() {
             }
         }
     }
+
+
+    private fun setupDrawer() {
+        toggol = ActionBarDrawerToggle(
+            this,
+            binding.drawerLayout,
+            R.string.open_nav,
+            R.string.close_nav
+        )
+        binding.drawerLayout.addDrawerListener(toggol)
+        toggol.syncState()
+
+        binding.menuBtn.setOnClickListener {
+            binding.drawerLayout.openDrawer(GravityCompat.START)
+            binding.overlay.setBackgroundColor("#33000000".toColorInt())
+
+        }
+
+        binding.logoutbtn.setOnClickListener {
+            binding.drawerLayout.closeDrawer(GravityCompat.START)
+            val alartbox : AlertDialog.Builder = AlertDialog.Builder(this, R.style.dialogUi)
+            alartbox.setTitle("Logout")
+            alartbox.setMessage("Are you sure you want to logout?")
+            alartbox.setPositiveButton("Logout") { _, _ ->
+                auth.signOut()
+                startActivity(Intent(this, MainActivity::class.java))
+                finish()
+            }
+            alartbox.setNegativeButton("Cancel") { dialog, _ ->
+                dialog.dismiss()
+                binding.drawerLayout.closeDrawer(GravityCompat.START)
+            }
+            alartbox.show()
+        }
+
+//        val isNightMode = AppCompatDelegate.getDefaultNightMode() == AppCompatDelegate.MODE_NIGHT_YES
+//        binding.themeswitch.isChecked = isNightMode
+//
+//        binding.themeswitch.setOnCheckedChangeListener { _, isChecked ->
+//            if (isChecked){
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_YES)
+//            }else {
+//                AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
+//            }
+//        }
+
+    }
+
+
+
+    private fun fetchuserdata(){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                authViewmodel.userProfile.collect {state ->
+                    when(state){
+                        is AuthUiState.Success ->{
+//                            val user = state.user
+                            state.user?.let { user ->
+                                user.profileImage?.let { url ->
+                                    Glide.with(this@WeatherPage)
+                                        .load(url)
+                                        .circleCrop()
+                                        .placeholder(R.drawable.baseline_person_24)
+                                        .into(binding.menuBtn)
+                                }
+                            }
+                        }
+                        is AuthUiState.Error -> {
+                            binding.menuBtn.setImageResource(R.drawable.baseline_person_24)
+                            Log.e("weather page", "Error fetch profile: ${state.message}")
+                        }
+                        else -> {}
+                    }
+                }
+            }
+        }
+
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     private fun observeUiState() {
         lifecycleScope.launch {
@@ -192,6 +297,10 @@ class WeatherPage : BaseActivity() {
         val factory = AuthViewmodelFactory()
         authViewmodel = ViewModelProvider(this, factory)[AuthViewmodel::class.java]
         auth = Firebase.auth
+
+        auth.currentUser?.let { user ->
+            authViewmodel.fatchUserdata(user.uid)
+        }
     }
 
     private fun setupUi() {

@@ -94,12 +94,12 @@ class AuthRepository(
             "uid" to user.uid,
             "name" to (user.displayName ?: ""),
             "email" to (user.email ?: ""),
-            "photoUrl" to (user.photoUrl?.toString() ?: ""),
+            "profileImage" to (user.photoUrl?.toString() ?: ""),
             "lastLogin" to FieldValue.serverTimestamp()
         )
 
         // SetOptions.merge() prevents overwriting existing fields on re-login
-        firestore.collection("users")
+        firestore.collection("SKY REPORT")
             .document(user.uid)
             .set(userMap, SetOptions.merge())
             .await()

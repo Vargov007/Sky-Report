@@ -122,10 +122,15 @@ class SignIn : Fragment() {
                             binding.progressbar.visibility = View.GONE
                             binding.button.isEnabled = true
 
+                            val user = state.user
+                            if (user != null){
+                                viewModel.fatchUserdata(user.uid)
+                            }
+
                             Toast
                                 .makeText(
                                     requireContext(),
-                                    "Welcome, ${state.user?.displayName}!",
+                                    "Welcome, ${state.user?.name}!",
                                     Toast.LENGTH_LONG,
                                 ).show()
 
@@ -155,8 +160,6 @@ class SignIn : Fragment() {
             viewModel.onGoogleSignInClick(requireActivity(), webClientID)
         }
 
-        binding.button2.setOnClickListener {
-            viewModel.signout()
-        }
+
     }
 }
