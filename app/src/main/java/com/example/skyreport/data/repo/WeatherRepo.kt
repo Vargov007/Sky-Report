@@ -17,8 +17,8 @@ class WeatherRepo(private val weatherApi: WeatherApi) {
         }
     }
 
-    suspend fun getWeatherData(cityName: String): WeatherResponce{
-        val apiResponse : WeatherResponce = weatherApi.getWeather(cityName)
+    suspend fun getWeatherData(cityName: String,api: String): WeatherResponce{
+        val apiResponse : WeatherResponce = weatherApi.getWeather(cityName, api)
         return  apiResponse
     }
 }

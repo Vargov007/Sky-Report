@@ -3,5 +3,21 @@
     <style name="Base.Theme.SkyReport" parent="Theme.Material3.DayNight.NoActionBar">
         <!-- Customize your dark theme here. -->
         <!-- <item name="colorPrimary">@color/my_dark_primary</item> -->
+
+        <item name="android:windowIsTranslucent">true</item>
+    </style>
+
+    <style name="Theme.SkyReport" parent="Base.Theme.SkyReport" />
+
+    <style name="dialogUi" parent="Theme.AppCompat.DayNight.Dialog.Alert">
+        <item name="android:textColor">@color/white</item>
+        <item name="android:background">@color/translucent</item>
+        <item name="textBackground">@color/transparent</item>
+        <item name="android:textColorPrimary">@color/white</item>
+        <item name="cardCornerRadius">50dp</item>
+        <item name="colorAccent">#FF5722</item> <!-- Changes button colors -->
+        <item name="android:windowIsTranslucent">true</item>
+
+
     </style>
 </resources>

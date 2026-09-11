@@ -8,7 +8,7 @@ import retrofit2.http.Query
 interface WeatherApi {
     @GET("weather")
     suspend fun getWeather(
-        @Query("q") cityName: String,
+        @Query("q") cityName: String?,
         @Query("appid") apiKey: String = BuildConfig.API_KEY,
         @Query("units") unit: String = "metric"
     ): WeatherResponce

@@ -41,18 +41,25 @@ import com.example.skyreport.utils.Resources
 import com.google.android.material.snackbar.Snackbar
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.util.Log
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
-import androidx.appcompat.app.AppCompatDelegate
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
+import androidx.work.NetworkType
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.skyreport.BuildConfig
+import com.example.skyreport.service.WeatherCheackworker
 import com.example.skyreport.utils.AuthUiState
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
 import kotlinx.coroutines.launch
+import java.util.concurrent.TimeUnit
 
 class WeatherPage : BaseActivity() {
     private lateinit var auth: FirebaseAuth
@@ -120,10 +127,44 @@ class WeatherPage : BaseActivity() {
 
         checkNetworkandConnection(this)     // Check for internet connection before making API calls
 
+        scheduledWeatherUpdate()                    // Schedule the weather update notification
 
+        checkNotificationPermission()               // Check for notification permission before showing notifications
     }
 
-     fun checkNetworkandConnection(context: WeatherPage) {
+    private fun checkNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU){
+            if (ContextCompat.checkSelfPermission(
+                this,
+                    Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+            ){
+                ActivityCompat.requestPermissions(
+                    this,
+                    arrayOf(Manifest.permission.POST_NOTIFICATIONS),
+                    101
+                )
+            }
+        }
+    }
+
+    private fun scheduledWeatherUpdate() {
+        val constraint = Constraints.Builder()
+            .setRequiredNetworkType(NetworkType.CONNECTED)
+            .build()
+
+        val weatherRequest = PeriodicWorkRequestBuilder<WeatherCheackworker>(
+            15, TimeUnit.MINUTES
+        ).setConstraints(constraint).build()
+
+        WorkManager.getInstance(this).enqueueUniquePeriodicWork(
+            "WeatherCheckWork",
+            ExistingPeriodicWorkPolicy.KEEP,
+            weatherRequest
+        )
+    }
+
+    fun checkNetworkandConnection(context: WeatherPage) {
         if (!isNetworkAvailable(context)){
             Toast.makeText(this, "No internet connection ", Toast.LENGTH_LONG).show()
 
