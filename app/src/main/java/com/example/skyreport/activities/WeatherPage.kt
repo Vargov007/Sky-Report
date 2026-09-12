@@ -159,7 +159,7 @@ class WeatherPage : BaseActivity() {
 
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "WeatherCheckWork",
-            ExistingPeriodicWorkPolicy.KEEP,
+            ExistingPeriodicWorkPolicy.REPLACE,
             weatherRequest
         )
     }
@@ -376,7 +376,10 @@ class WeatherPage : BaseActivity() {
 
                     is Resources.Success -> {
                         hideLoading()
-                        state.data?.let { updateWeatherUI(it) }
+                        state.data?.let {
+                            updateWeatherUI(it)         // Update the UI with the weather data
+                        viewmodel.updateWidgetData(this@WeatherPage,it)     // Update the widget data
+                         }
                     }
 
                     is Resources.Error -> {
@@ -489,6 +492,9 @@ class WeatherPage : BaseActivity() {
         }
 
         val backgroundResource = getWeatherBackgroundResource(weather)
+
+        val sharedPref = getSharedPreferences("weather_pref", Context.MODE_PRIVATE)
+        sharedPref.edit().putString("city_name", weather.name).apply()
 
         Glide
             .with(this@WeatherPage)

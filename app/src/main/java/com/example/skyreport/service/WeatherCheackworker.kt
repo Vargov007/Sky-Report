@@ -18,32 +18,62 @@ import com.example.skyreport.utils.NatworkUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import android.Manifest
+import android.appwidget.AppWidgetManager
+import android.content.Intent
+import android.graphics.Color
+import com.example.skyreport.data.models.weather.WeatherResponce
+import com.example.skyreport.widget.WeatherWidgetProvider
 
 class WeatherCheackworker(
     private val context: Context,
     workerParams: WorkerParameters,
-    ): CoroutineWorker(context, workerParams) {
+): CoroutineWorker(context, workerParams) {
 
     private val weatherApi = NatworkUtils.getRetrofitInstance().create(WeatherApi::class.java)
 
     override suspend fun doWork(): Result = withContext(Dispatchers.IO) {
-
-        if (!isNetworkAvailable(context)){
+        if (!isNetworkAvailable(context)) {
             return@withContext Result.retry()
-            
         }
 
-        val sheardpref = context.getSharedPreferences("weather_pref", Context.MODE_PRIVATE)
+        val sharedPref = context.getSharedPreferences("weather_pref", Context.MODE_PRIVATE)
+        val cityName = sharedPref.getString("city_name", "")
 
-        val cityName = sheardpref.getString("city_name","")
-        val lastCondition = sheardpref.getString("last_condition","")
+        if (cityName.isNullOrEmpty()) return@withContext Result.success()
 
-        val currentCondition = fetchCurrentCondition(cityName) ?: Result.retry()
+        val lastCondition = sharedPref.getString("last_condition", "")
 
-        if (lastCondition?.isNotEmpty() == true && !lastCondition.equals(currentCondition as String?, ignoreCase = true)){
-            showNotification("Weather Alert","The weather in $cityName is now $currentCondition")
+        // Fetch the full weather data
+        val weatherData = fetchFullWeatherData(cityName)
+        if (weatherData == null) {
+            return@withContext Result.retry()
+        }
 
-            sheardpref.edit().putString("last_condition", currentCondition as String?).apply()
+        val currentCondition = weatherData.weather.firstOrNull()?.main ?: "Unknown"
+
+        if (lastCondition.isNullOrEmpty()) {
+            // First run: establish baseline
+            sharedPref.edit().putString("last_condition", currentCondition).apply()
+        } else if (!lastCondition.equals(currentCondition, ignoreCase = true)) {
+            // Weather changed: Show detailed notification
+            val title = "${weatherData.main.temp.toInt()}° in $cityName"
+            val message = "Feels like ${weatherData.main.feels_like.toInt()}° | $currentCondition | H: ${weatherData.main.temp_max.toInt()}° L: ${weatherData.main.temp_min.toInt()}°"
+
+            showNotification(title, message)
+
+            // Save new condition
+            sharedPref.edit().putString("last_condition", currentCondition).apply()
+            sharedPref.edit().apply{
+                putString("widget_city", weatherData.name)
+                putString("widget_temp", "${weatherData.main.temp.toInt()}°")
+                putString("widget_condition", weatherData.weather.firstOrNull()?.main)
+                apply()
+            }
+
+            val intent = Intent(context, WeatherWidgetProvider ::class.java ).apply {
+                action = AppWidgetManager.ACTION_APPWIDGET_UPDATE
+            }
+            context.sendBroadcast(intent)
         }
 
         Result.success()
@@ -51,55 +81,45 @@ class WeatherCheackworker(
 
     private fun isNetworkAvailable(context: Context): Boolean {
         val connectivityManager = context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            val network = connectivityManager.activeNetwork ?: return false
-            val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
-            return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
-        }else{
-            @Suppress("DEPRECATION")
-            val networkInfo = connectivityManager.activeNetworkInfo ?: return false
-            @Suppress("DEPRECATION")
-            return networkInfo.isConnected
-        }
+        val network = connectivityManager.activeNetwork ?: return false
+        val activeNetwork = connectivityManager.getNetworkCapabilities(network) ?: return false
+        return activeNetwork.hasCapability(NetworkCapabilities.NET_CAPABILITY_INTERNET)
     }
 
-    private suspend fun fetchCurrentCondition(cityName: String?): String? {
+    private suspend fun fetchFullWeatherData(cityName: String): WeatherResponce? {
         return try {
-            val responce = weatherApi.getWeather(cityName)
-            responce.weather.firstOrNull()?.main
-        }catch (e: Exception){
+            weatherApi.getWeather(cityName)
+        } catch (e: Exception) {
             null
         }
     }
 
     private fun showNotification(title: String, message: String) {
         val channelId = "weather_alerts"
-        val manager = context.getSystemService(NotificationManager :: class.java) as NotificationManager
+        val manager = context.getSystemService(NotificationManager::class.java)
 
-        if (Build.VERSION.SDK_INT  >= Build.VERSION_CODES.O){
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             val channel = NotificationChannel(
                 channelId, "Weather Alerts",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-
-            manager.createNotificationChannel(channel)
+                NotificationManager.IMPORTANCE_HIGH
+            ).apply {
+                description = "Notification for weather changes"
+                enableLights(true)
+                lightColor = Color.BLUE
+            }
+            manager?.createNotificationChannel(channel)
         }
 
-        val notification = NotificationCompat.Builder(context,channelId)
-            .setSmallIcon(R.mipmap.ic_icon2_foreground)
+        val notification = NotificationCompat.Builder(context, channelId)
+            .setSmallIcon(R.drawable.notify_logo2)
             .setContentTitle(title)
             .setContentText(message)
-            .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+            .setPriority(NotificationCompat.PRIORITY_HIGH)
             .setAutoCancel(true)
             .build()
 
-        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED){
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.POST_NOTIFICATIONS) == PackageManager.PERMISSION_GRANTED) {
             NotificationManagerCompat.from(context).notify(1001, notification)
         }
     }
-
-
-
-
 }
