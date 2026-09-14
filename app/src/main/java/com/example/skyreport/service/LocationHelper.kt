@@ -32,4 +32,13 @@ class LocationHelper(
             null
         }
     }
+
+    @SuppressLint("MissingPermission")
+    suspend fun getCurrentLocation(): android.location.Location?{
+        return try {
+            fusedlocationClient.lastLocation.await()
+        }catch (e: Exception){
+            null
+        }
+    }
 }

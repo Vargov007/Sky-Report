@@ -8,9 +8,6 @@ import android.content.Intent
 import android.widget.RemoteViews
 import com.example.skyreport.R
 import com.example.skyreport.activities.WeatherPage
-import com.example.skyreport.data.api.WeatherApi
-import com.example.skyreport.data.models.weather.WeatherResponce
-import com.example.skyreport.utils.NatworkUtils
 
 class WeatherWidgetProvider : AppWidgetProvider() {
 

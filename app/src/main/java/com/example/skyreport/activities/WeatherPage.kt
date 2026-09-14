@@ -43,18 +43,27 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
+import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
 import androidx.core.view.GravityCompat
+import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.work.Constraints
 import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.example.skyreport.BuildConfig
+import com.example.skyreport.data.api.HourlyWeatherApi
+import com.example.skyreport.data.repo.HourlyweatherRepo
 import com.example.skyreport.service.WeatherCheackworker
+import com.example.skyreport.ui.adapter.HourlyWeatherAdapter
+import com.example.skyreport.ui.viewmodels.HourlyWeatherViewModelFactory
+import com.example.skyreport.ui.viewmodels.HourlyWeatherViewmodel
 import com.example.skyreport.utils.AuthUiState
+import com.example.skyreport.utils.HourlyNetworkUtils
+import com.example.skyreport.utils.HourlyResources
 import com.google.firebase.Firebase
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.auth
@@ -70,6 +79,8 @@ class WeatherPage : BaseActivity() {
 
     private lateinit var toggol : ActionBarDrawerToggle
 
+    private lateinit var hourlyAdaptor : HourlyWeatherAdapter
+    private lateinit var hourlyViewmodel : HourlyWeatherViewmodel
     private val requestpermissitionLauncher =
         registerForActivityResult(
             ActivityResultContracts.RequestMultiplePermissions(),
@@ -82,6 +93,12 @@ class WeatherPage : BaseActivity() {
     @SuppressLint("MissingPermission")
     private fun getDevicelocation() {
         lifecycleScope.launch {
+            val location = locationhelper.getCurrentLocation()
+            if (location != null){
+                // Update hourly weather with coordinates
+                hourlyViewmodel.updateLocation(location.latitude, location.longitude)
+            }
+            // Still fetch city name for the main weather viewmodel
             val detectCity = locationhelper.getCurrentCity()
             if (!detectCity.isNullOrEmpty()) {
                 viewmodel.updateCity(detectCity)
@@ -130,6 +147,12 @@ class WeatherPage : BaseActivity() {
         scheduledWeatherUpdate()                    // Schedule the weather update notification
 
         checkNotificationPermission()               // Check for notification permission before showing notifications
+
+
+        //for RecyclerView
+        setUpRecyclerView()
+        observeHourlyWeather()
+        setupHourlyViewModel()
     }
 
     private fun checkNotificationPermission() {
@@ -577,6 +600,61 @@ class WeatherPage : BaseActivity() {
                 )
             paint.shader = textShader
             textview.invalidate()
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // for RecyclerView
+
+    fun setUpRecyclerView(){
+        hourlyAdaptor = HourlyWeatherAdapter()
+        binding.hourlyWeather.apply {
+            layoutManager = LinearLayoutManager(this@WeatherPage, LinearLayoutManager.HORIZONTAL, false)
+            adapter = hourlyAdaptor
+        }
+    }
+
+    private fun setupHourlyViewModel(){
+        val hourlyApi = HourlyNetworkUtils.getGoogleWeatherRetrofitInstance().create(HourlyWeatherApi::class.java)
+        val repository = HourlyweatherRepo(hourlyApi)
+        val factory = HourlyWeatherViewModelFactory(repository)
+        hourlyViewmodel = ViewModelProvider(this,factory)[HourlyWeatherViewmodel::class.java]
+    }
+
+    private fun observeHourlyWeather(){
+        lifecycleScope.launch {
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+                hourlyViewmodel.hourlyWeatherState.collect { resource ->
+                    when(resource){
+                        is HourlyResources.Loading -> {
+                            binding.weatherprogressbar.visibility = View.VISIBLE
+                        }
+                        is HourlyResources.Success -> {
+                            binding.weatherprogressbar.visibility = View.GONE
+                            resource.data?.forecastHours?.let { list ->
+                                hourlyAdaptor.submitlist(list)
+                            }
+                        }
+                        is HourlyResources.Error -> {
+                            binding.weatherprogressbar.visibility = View.GONE
+                            Toast.makeText(this@WeatherPage, resource.message ?: "Something went wrong", Toast.LENGTH_LONG).show()
+                        }
+                    }
+                }
+            }
         }
     }
 }

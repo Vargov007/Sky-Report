@@ -57,7 +57,7 @@ class WeatherCheackworker(
         } else if (!lastCondition.equals(currentCondition, ignoreCase = true)) {
             // Weather changed: Show detailed notification
             val title = "${weatherData.main.temp.toInt()}° in $cityName"
-            val message = "Feels like ${weatherData.main.feels_like.toInt()}° | $currentCondition | H: ${weatherData.main.temp_max.toInt()}° L: ${weatherData.main.temp_min.toInt()}°"
+            val message = "Feels like ${weatherData.main.feels_like.toInt()}° | $currentCondition | HIGH: ${weatherData.main.temp_max.toInt()}° LOW: ${weatherData.main.temp_min.toInt()}°"
 
             showNotification(title, message)
 

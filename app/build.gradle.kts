@@ -39,6 +39,11 @@ android {
             "API_KEY",
             "\"${localProperties.getProperty("API_KEY") ?: ""}\"",
         )
+        buildConfigField(
+            "String",
+            "HOURLY_API_KEY",
+            "\"${localProperties.getProperty("HOURLY_API_KEY") ?: ""}\""
+        )
     }
 
     buildFeatures {

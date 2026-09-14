@@ -245,7 +245,7 @@
                     <androidx.cardview.widget.CardView
                         android:id="@+id/cardView"
                         android:layout_width="match_parent"
-                        android:layout_height="180dp"
+                        android:layout_height="wrap_content"
                         android:layout_marginTop="200dp"
                         android:backgroundTint="@color/translucent2"
                         app:cardCornerRadius="24dp"
@@ -255,10 +255,18 @@
                         app:layout_constraintStart_toStartOf="parent"
                         app:layout_constraintTop_toBottomOf="@+id/headerContainer">
 
+                        <!-- Replace your cardView container with direct RecyclerView placement -->
                         <androidx.recyclerview.widget.RecyclerView
-                            android:layout_width="match_parent"
-                            android:layout_height="match_parent"
-                            android:paddingVertical="12dp" />
+                            android:id="@+id/hourlyWeather"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:clipToPadding="false"
+                            android:orientation="horizontal"
+                            android:layout_gravity="center"
+                            app:layoutManager="androidx.recyclerview.widget.LinearLayoutManager"
+                            app:layout_constraintEnd_toEndOf="parent"
+                            app:layout_constraintStart_toStartOf="parent"
+                            app:layout_constraintTop_toBottomOf="@+id/headerContainer" />
                     </androidx.cardview.widget.CardView>
 
                     <!-- Row 1: Humidity & Wind -->
