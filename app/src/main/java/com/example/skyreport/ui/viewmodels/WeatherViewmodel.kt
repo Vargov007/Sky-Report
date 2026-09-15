@@ -18,7 +18,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -56,12 +55,17 @@ class   WeatherViewmodel(
 
 
     fun updateWidgetData(context: Context , weatherResponce: WeatherResponce){
+        val current = weatherResponce.dt
+        val sunrise = weatherResponce.sys.sunrise
+        val sunset = weatherResponce.sys.sunset
+        val isDaytime = current in sunrise..sunset
 
-        val sheredpref = context.getSharedPreferences("weather_pref", Context.MODE_PRIVATE)
-        sheredpref.edit().apply{
+        val sharedPref = context.getSharedPreferences("weather_pref", Context.MODE_PRIVATE)
+        sharedPref.edit().apply {
             putString("widget_city", weatherResponce.name)
-            putString("widget_temp", "${weatherResponce.main.temp.toInt()}°")
+            putString("widget_temp", "${weatherResponce.main.temp.toInt()}°C")
             putString("widget_condition", weatherResponce.weather.firstOrNull()?.main)
+            putBoolean("widget_is_daytime", isDaytime)
             apply()
         }
 

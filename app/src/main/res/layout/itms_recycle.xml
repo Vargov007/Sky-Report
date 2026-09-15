@@ -1,59 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="wrap_content"
+    android:layout_width="72dp"
     android:layout_height="wrap_content"
-    android:background="@color/transparent">
+    android:layout_marginHorizontal="4dp"
+    android:layout_marginVertical="6dp"
+    app:cardBackgroundColor="#1F000000"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="0dp"
+    app:strokeWidth="0dp">
 
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="90dp"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:background="@color/transparent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        android:gravity="center_horizontal"
+        android:orientation="vertical"
+        android:paddingVertical="12dp">
 
         <TextView
             android:id="@+id/hourlytime"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:text="1:30pm"
-            android:textColor="@color/white"
-            android:textSize="17sp"
-            android:gravity="center"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            android:textColor="#DDFFFFFF"
+            android:textSize="12sp"
+            tools:text="2:00" />
 
-        <ImageView
-            android:id="@+id/hourlyimg"
+        <!-- Weather Condition Text (Replaces ImageView) -->
+        <TextView
+            android:id="@+id/hourlyCondition"
             android:layout_width="match_parent"
-            android:layout_height="70dp"
-            android:padding="8dp"
-            android:scaleType="centerInside"
-            android:src="@drawable/notify_logo2"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hourlytime" />
+            android:layout_height="40dp"
+            android:layout_marginTop="8dp"
+            android:gravity="center"
+            android:ellipsize="end"
+            android:maxLines="2"
+            android:textColor="#EEFFFFFF"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            tools:text="CLEAR" />
 
         <TextView
             android:id="@+id/hourlytemp"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="5dp"
-            android:gravity="center"
-            android:paddingStart="5dp"
-            android:text="32°"
+            android:layout_marginTop="5dp"
             android:textColor="@color/white"
-            android:textSize="26dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hourlyimg" />
+            android:textSize="18sp"
+            android:textStyle="bold"
+            tools:text="26°" />
 
-    </androidx.constraintlayout.widget.ConstraintLayout>
+        <!-- 4. Dynamic Dot Indicator -->
+        <View
+            android:id="@+id/indicatorDot"
+            android:layout_width="5dp"
+            android:layout_height="5dp"
+            android:layout_marginTop="7dp"
+            android:background="@drawable/shape_dot_white" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+        <TextView
+            android:id="@+id/hourlyPrecipitation"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="7dp"
+            android:textColor="#A0FFFFFF"
+            android:textSize="11sp"
+            tools:text="15%" />
+
+    </LinearLayout>
+</com.google.android.material.card.MaterialCardView>

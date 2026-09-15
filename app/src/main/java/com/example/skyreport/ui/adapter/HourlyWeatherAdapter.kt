@@ -37,10 +37,18 @@ class HourlyWeatherAdapter : RecyclerView.Adapter<HourlyWeatherAdapter.HourlyVie
         // Formats time as HH:mm and temperature with degree symbol
         val timeStr = "${forecastHour.displayDateTime.hours}:${String.format("%02d", forecastHour.displayDateTime.minutes)}"
         val tempStr = "${forecastHour.temperature.degrees.toInt()}°"
+        val ingStr ="${forecastHour.weatherCondition.type}"
+        val probStr = "${forecastHour.precipitation.probability.percent}%"
+        val updateState = ingStr.replace("_", "\n")
 
         holder.time.text = timeStr
         holder.temp.text = tempStr
+        holder.img.text = updateState
+        holder.probability.text = probStr
+
+
     }
+
 
     override fun getItemCount(): Int {
         return hourlyList.size
@@ -49,6 +57,8 @@ class HourlyWeatherAdapter : RecyclerView.Adapter<HourlyWeatherAdapter.HourlyVie
     class HourlyViewHolder( views : View) : RecyclerView.ViewHolder(views) {
         val time : TextView = views.findViewById(R.id.hourlytime)
         val temp : TextView = views.findViewById(R.id.hourlytemp)
+        val img : TextView = views.findViewById(R.id.hourlyCondition)
+        val probability : TextView = views.findViewById(R.id.hourlyPrecipitation)
     }
 
 }

@@ -43,7 +43,6 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import android.util.Log
-import androidx.activity.viewModels
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AlertDialog
 import androidx.core.app.ActivityCompat
@@ -151,8 +150,8 @@ class WeatherPage : BaseActivity() {
 
         //for RecyclerView
         setUpRecyclerView()
-        observeHourlyWeather()
         setupHourlyViewModel()
+        observeHourlyWeather()
     }
 
     private fun checkNotificationPermission() {

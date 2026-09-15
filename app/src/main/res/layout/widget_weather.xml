@@ -6,30 +6,47 @@
     android:orientation="vertical"
     android:padding="16dp">
 
+    <ImageView
+        android:id="@+id/widgetimg"
+        android:layout_width="70dp"
+        android:layout_height="65dp"
+        android:layout_marginStart="86dp"
+        android:scaleType="centerCrop"
+        android:backgroundTint="@color/transparent"
+        android:background="@color/transparent"/>
+
+
+
     <TextView
         android:id="@+id/tvWidgetCity"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="City"
-        android:textSize="20sp"
+        android:layout_marginTop="10dp"
         android:textColor="@color/white"
-        android:textStyle="bold"/>
+        android:textSize="20sp"
+        android:textStyle="bold" />
+
     <TextView
         android:id="@+id/tvWidgettemp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="--°"
-        android:textStyle="bold"
         android:textColor="@color/white"
-        android:textSize="35sp"/>
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_marginTop="5dp" />
+
     <TextView
         android:id="@+id/tvWidgetCondition"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
         android:text="Loading..."
-        android:textSize="25sp"
         android:textColor="@color/white"
-        />
+        android:textSize="23sp" />
+
+
 
 
 </LinearLayout>
